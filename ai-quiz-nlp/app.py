@@ -1,22 +1,21 @@
 from flask import Flask, render_template, request
-import spacy
 import random
 
 app = Flask(__name__)
-nlp = spacy.blank("en")
+nlp = None
 
 
 # ---------------- QUIZ GENERATION ----------------
 def generate_quiz_data(text, num=5):
-    doc = nlp(text)
-    sentences = list(doc.sents)
+    sentences = text.split(".")
 
     num = min(len(sentences), 10)
 
     questions = []
 
     for sent in sentences:
-        tokens = [t for t in sent if t.pos_ in ["NOUN", "PROPN"] and t.is_alpha]
+        words = sent.split()
+        tokens = [w for w in words if w.isalpha() and len(w) > 4]
 
         if len(tokens) < 2:
             continue
