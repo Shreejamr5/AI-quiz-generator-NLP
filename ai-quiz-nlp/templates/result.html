@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Result</title>
+
+<style>
+body {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #e2e8f0;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+}
+
+.container {
+    width: 60%;
+    margin: auto;
+    margin-top: 30px;
+}
+
+.score-card {
+    background: #020617;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.score {
+    font-size: 40px;
+    color: #38bdf8;
+}
+
+.message {
+    font-size: 20px;
+    margin-top: 10px;
+}
+
+.progress-box {
+    background: #1e293b;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 15px;
+}
+
+.progress {
+    height: 20px;
+    background: #22c55e;
+}
+
+.card {
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.correct { color: #22c55e; }
+.wrong { color: #ef4444; }
+
+.home-btn {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    background: #38bdf8;
+    border-radius: 8px;
+    color: black;
+    text-decoration: none;
+    margin-top: 20px;
+}
+
+/* Animations */
+.score {
+    animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px #38bdf8; }
+    to { text-shadow: 0 0 20px #22c55e; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- STORE VALUES SAFELY -->
+<div id="data"
+     data-score="{{ score }}"
+     data-total="{{ results|length }}">
+</div>
+
+<div class="container">
+
+<div class="score-card">
+
+    <h2>🎯 Your Score</h2>
+
+    <div class="score">
+        {{ score }} / {{ results|length }}
+    </div>
+
+    {% set percent = (score / results|length) * 100 %}
+
+    <div class="message">
+        {% if percent >= 80 %}
+            🏆 Excellent!
+        {% elif percent >= 50 %}
+            👍 Good Job!
+        {% else %}
+            📘 Needs Improvement
+        {% endif %}
+    </div>
+
+    <div class="progress-box">
+        <div class="progress" style="width: {{ percent }}%;"></div>
+    </div>
+
+</div>
+
+{% for r in results %}
+<div class="card">
+
+    <p><b>{{ r.question }}</b></p>
+
+    <p>
+        Your Answer:
+        <span class="{{ 'correct' if r.is_correct else 'wrong' }}">
+            {{ r.user }}
+        </span>
+    </p>
+
+    {% if not r.is_correct %}
+    <p>Correct Answer: <b>{{ r.correct }}</b></p>
+    {% endif %}
+
+</div>
+{% endfor %}
+
+<a href="/" class="home-btn">🏠 Back to Home</a>
+
+</div>
+
+<!-- CONFETTI SCRIPT -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<script>
+// ✅ GET VALUES WITHOUT JINJA IN JS
+const data = document.getElementById("data");
+
+let score = parseInt(data.dataset.score);
+let total = parseInt(data.dataset.total);
+
+let percent = (score / total) * 100;
+
+// 🎉 CONFETTI
+if (percent >= 80) {
+    setTimeout(() => {
+        confetti({
+            particleCount: 200,
+            spread: 100,
+            origin: { y: 0.6 }
+        });
+    }, 500);
+}
+</script>
+
+</body>
+</html>

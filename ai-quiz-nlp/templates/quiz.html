@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Quiz</title>
+
+<style>
+body { background:#0f172a; color:white; font-family:Arial; }
+.container { width:60%; margin:auto; margin-top:30px; }
+.question { background:#1e293b; padding:15px; margin:10px; border-radius:10px; }
+button { padding:10px; background:#22c55e; border:none; border-radius:8px; }
+.timer { text-align:right; color:#38bdf8; font-size:18px; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="timer">⏱ Time Left: <span id="timer">60</span>s</div>
+
+<h2>Quiz</h2>
+
+<form method="POST" action="/result">
+
+{% for i in range(quiz|length) %}
+<div class="question">
+<p><b>Q{{ i+1 }}: {{ quiz[i].question }}</b></p>
+
+{% for opt in quiz[i].options %}
+<input type="radio" name="q{{ i }}" value="{{ opt }}" required> {{ opt }}<br>
+{% endfor %}
+
+<input type="hidden" name="ans{{ i }}" value="{{ quiz[i].answer }}">
+<input type="hidden" name="question{{ i }}" value="{{ quiz[i].question }}">
+</div>
+{% endfor %}
+
+<input type="hidden" name="total_q" value="{{ quiz|length }}">
+<button type="submit">Submit Quiz</button>
+
+</form>
+
+<a href="/">⬅ Back</a>
+
+</div>
+
+<script>
+let timeLeft = 60;
+let timer = document.getElementById("timer");
+
+let interval = setInterval(() => {
+    timeLeft--;
+    timer.innerText = timeLeft;
+
+    if(timeLeft <= 0){
+        clearInterval(interval);
+        alert("Time's up!");
+        document.forms[0].submit();
+    }
+}, 1000);
+</script>
+
+</body>
+</html>
