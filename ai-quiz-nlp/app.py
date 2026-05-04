@@ -6,10 +6,15 @@ nlp = None
 
 
 # ---------------- QUIZ GENERATION ----------------
-def generate_quiz_data(text, num=5):
-    sentences = text.split(".")
+import re
+import random
 
-    num = min(len(sentences), 10)
+def generate_quiz_data(text, num=5):
+    sentences = re.split(r'[.!?]', text)
+    sentences = [s.strip() for s in sentences if len(s.strip()) > 10]
+
+    if not sentences:
+        return []
 
     questions = []
 
@@ -20,17 +25,15 @@ def generate_quiz_data(text, num=5):
         if len(tokens) < 2:
             continue
 
-        answer = random.choice(tokens).text
-        question = sent.text.replace(answer, "_____")
+        answer = random.choice(tokens)
+        question = sent.replace(answer, "_____")
 
-        options = list(set([t.text for t in tokens if t.text != answer]))
+        options = list(set([w for w in tokens if w != answer]))
 
         while len(options) < 3:
             options.append(answer)
 
-        options = random.sample(options, min(3, len(options)))
-        options.append(answer)
-
+        options = options[:3] + [answer]
         random.shuffle(options)
 
         questions.append({
@@ -44,7 +47,6 @@ def generate_quiz_data(text, num=5):
 
     return questions
 
-
 # ---------------- HOME ----------------
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -55,6 +57,10 @@ def home():
             return render_template("home.html", error="Please enter some text!")
 
         quiz = generate_quiz_data(text)
+
+        if not quiz:
+            return render_template("home.html", error="Not enough content to generate quiz.")
+
         return render_template("quiz.html", quiz=quiz)
 
     return render_template("home.html")
